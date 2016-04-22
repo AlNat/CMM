@@ -1,0 +1,37 @@
+Грамматика для языка C--
+
+INIT - начальный символ
+NOT TERMINAL
+terminal
+
+INIT -> FUNCTION
+FUNCTION -> int main (void) { BODY return 0; }
+BODY -> INITID | STATEMENT | FOR | WHILE | IF | OUT | BODY BODY | _
+
+INITID -> TYPE ID = DIGIT; | TYPE ID = ID; // Вот только здесь будем помещать ID в таблицу
+STATEMENT -> ID = ID; | ID = ID ARITHMETIC DIGIT; | ID = ID ARITHMETIC ID;  // Пока без проверки типа - ну это в конце концов тупо Warning
+
+FOR -> for (FOREXPRESSION) { BODY }
+WHILE -> while (EXPRESSION) { BODY }
+IF -> if (EXPRESSION) { BODY } else { BODY }
+OUT -> out (ID);
+
+FOREXPRESSION -> STATEMENT ID OPERATOR ID; DIGIT  | STATEMENT ID OPERATOR DIGIT; DIGIT |  INITIDID OPERATOR ID; DIGIT  | INITIDID ID OPERATOR DIGIT; DIGIT 
+EXPRESSION -> ID OPERATOR ID | ID OPERATOR DIGIT | DIGIT OPERATOR ID | DIGIT OPERATOR DIGIT | (EXPRESSION OPERATOR EXPRESSION)
+
+ID -> LETTER_ID1
+ID1 -> LETTER | DIGIT | LETTER_ID1 | DIGIT_ID1 | _  // Символ _ просто игнорируеться - он тут в основном для читабельности кода
+
+OPERATOR ->  < | > | == | <= | => | != 
+BOOLOPERATOR -> _ | ! | && | || 
+ARITHMETIC -> + | - | * | /
+TYPE -> bool | int | double 
+
+DIGIT -> INTDIGIT | BOOLDIGIT | DOUBLEDIGIT
+INTDIGIT -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | INTDIGIT_INTDIGIT
+DOUBLEDIGIT -> INTDIGIT.INTDIGIT
+BOOL -> 0 | 1
+LETTER -> a | b ... Y | Z | LETTER_LETTER
+
+_ и /* */ Игнорируються
+TODO Возоможные пользовательские функции и булеву алгебру
