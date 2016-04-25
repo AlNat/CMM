@@ -32,6 +32,3 @@ INTDIGIT -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | INTDIGIT_INTDIGIT
 DOUBLEDIGIT -> INTDIGIT.INTDIGIT
 BOOL -> 0 | 1
 LETTER -> a | b ... Y | Z | LETTER_LETTER
-
-_ и /* */ Игнорируються
-TODO Возоможные пользовательские функции и булеву алгебру
