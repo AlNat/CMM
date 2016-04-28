@@ -13,14 +13,21 @@ import java.util.List;
  * Created by AlNat on 20.04.2016.
  */
 
+
+/**
+ * Токенйзер выполняет самую простую часть работы - он принимает путь файлу, читает его построчно и аписывает все в
+ * встречеемые слова, разделенные проблема в массив токенов, убирая табуляции, переводы строк и тд.
+ */
 public class Tokenizer {
 
     private ArrayList<String> tokens; // Массив числовых представлений токенов
+    private ArrayList<Integer> tokensPage; // Массив номеров строк для всех токенов, там где они находяться
     private List<String> file; // Наш файл с программа для распарсивания
     private int currentToken; // Указатель на текущий токен
 
     public Tokenizer () {
         tokens = new ArrayList<String>();
+        tokensPage = new ArrayList<>();
         currentToken = 0;
     }
 
@@ -54,6 +61,14 @@ public class Tokenizer {
 
     /**
      *
+     * @return number of row< where token placed
+     */
+    public int GetTokenRow() { // Вернули номер строчки, где этот токен
+        return tokensPage.get(currentToken - 2) + 1 ;
+    }
+
+    /**
+     *
      * @return token, before next
      */
     public String GetPrevToken () {
@@ -61,8 +76,8 @@ public class Tokenizer {
     }
 
     /**
-     *
-     * @param index
+     *  Get token by id
+     * @param index - token position
      * @return String token with that index
      */
     public String GetToken (int index) {
@@ -71,7 +86,7 @@ public class Tokenizer {
 
     /**
      * Set token position with index
-     * @param index
+     * @param index - position to set
      */
     public void SetTokenPosition (int index) {
         currentToken = index;
@@ -79,20 +94,20 @@ public class Tokenizer {
 
     /**
      * Add new token to array
-     * @param token
+     * @param token - string to add to tokens, page - page numbet of this token
      */
-
-    private void addToken (String token) {
+    private void addToken (String token, int page) {
         tokens.add(token);
+        tokensPage.add(page);
         currentToken++;
     }
 
+
     /**
      * Parsing the file and add all tokens inside in array
-     * @param filename
+     * @param filename - parsing file path
      * @throws IOException
      */
-
     public void Parse (String filename) throws IOException {
 
         file = Files.readAllLines(Paths.get(filename), StandardCharsets.UTF_8); // Прочитали весь файл
@@ -102,12 +117,16 @@ public class Tokenizer {
             // Теперь в tokensInFile лежут куча текстовых токенов для конкретной строки
 
             for (String st2: tokensInFile) { // Для всех распарсенных строк
-                String t = st2.replaceAll("[\\n\\t\\r\\s ]+", "");// Заменили все пробелы на ничто
+                String t = st2.replaceAll("[\\n\\t\\r\\s ]+", "");// Заменили все пробелы и переводы строк на ничто
                 if (t.equals("")) { // Чтобы пстые строчки не добавлялись
                     continue;
                 }
-                addToken( t ); // И добавили его
+
+                addToken( t, file.indexOf(st) ); // И добавили его
+
             }
+
+
         }
 
         currentToken = 0;

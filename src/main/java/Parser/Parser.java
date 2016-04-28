@@ -1,13 +1,10 @@
 package Parser;
 
 import Lexer.Tokenizer;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.MultiHashtable;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by AlNat on 31.03.2016.
@@ -17,6 +14,10 @@ import java.util.Set;
  * Sintaxis and Semanthic analyzer
  */
 
+/**
+ * Парсер - исполняет функции синтаксического и семантического анализатора, а так-же выполняет наш файл.
+ *
+ */
 public class Parser {
 
     Tokenizer tokenizer;
@@ -24,26 +25,28 @@ public class Parser {
     public boolean isCorrect;
     private int deep; // Глубина погруения в {}
 
-    HashMap <String, Integer> integerID;// Целочисленные переменные - имя и значение
-    HashMap <String, Double> doubleID; // Дробные переменные
+    Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
+    Map <String, Double> doubleID; // Дробные переменные
+    String res;
 
     public Parser () {
 
         /*
-        Да, по хорошему надо бы сделать древовидные структуры, но лень писать еще и класс дерево.
-         */
+            Да, по хорошему надо бы сделать древовидные структуры, но лень писать еще и класс дерево.
+        */
 
         tokenizer = new Tokenizer();
         tokenizer.SetTokenPosition(0);
         integerID = new HashMap<>();
         doubleID = new HashMap<>();
-        isCorrect = true;
+        deep = 0;
+        isCorrect = false;
 
     }
 
     public void Parse (String filename) throws IOException {
 
-        tokenizer.Parse(filename); // Двупроходный компилятор получаеться у нас
+        tokenizer.Parse(filename); // Двупроходный интерпритатор получаеться у нас
 
         System.out.println("Parser starts work");
 
@@ -54,6 +57,19 @@ public class Parser {
 
     }
 
+    public void PrintAllVariables() {
+        System.out.println("Int:");
+        for (Map.Entry e : integerID.entrySet()) {
+            System.out.println(e.getKey() + " = " + e.getValue());
+        }
+
+        System.out.println("\nDouble:");
+        for (Map.Entry e : doubleID.entrySet()) {
+            System.out.println(e.getKey() + " = " + e.getValue());
+        }
+
+    }
+
     void Body () {
 
         String token = tokenizer.GetNextToken();
@@ -61,11 +77,11 @@ public class Parser {
         if (token.equals("/*")) { // Комментарии - просто пропускаем их мимо
             COMMENTARY();
         } else if (token.equalsIgnoreCase("if")) { // Конструкия if else
-            //IF();
+            IF();
         } else if (token.equalsIgnoreCase("for")) { // Цикл for
-            //FOR();
+            FOR();
         } else if (token.equalsIgnoreCase("while")) { // Цикл while
-            //WHILE();
+            WHILE();
         } else if (token.equalsIgnoreCase("out")) { // Вывод переменной
             OUT();
         } else if (token.equalsIgnoreCase("int")) { // Инициализация int
@@ -76,6 +92,7 @@ public class Parser {
             System.out.println("Programm finished!");
             isCorrect = true;
         } else if (token.equals("}")) { // Если закрыли цикл или if
+            deep--;
             Body();
         } else {
             ARYTH(token); // Если все выше не подошло, то мы получили работу с переменной или ошибку
@@ -91,12 +108,20 @@ public class Parser {
         tokenizer.GetNextToken(); // Скобка
         String printName = tokenizer.GetNextToken();
 
-        if (integerID.containsKey(printName)) { // Если это интовая переменная
-            System.out.println("The int variable " + printName + " = " + integerID.get(printName)); // То выводим значение
-        } else if (doubleID.containsKey(printName)) { // Если это дабл
-            System.out.println("The double variable " + printName + " = " + doubleID.get(printName)); // То выводим ее значение
-        } else { // Если это что-то другое
-            System.out.println(printName); // То тоже выводим
+        if (tokenizer.GetNextToken().equals(");")) {
+
+            if (integerID.containsKey(printName)) { // Если это интовая переменная
+                System.out.println("The int variable " + printName + " = " + integerID.get(printName)); // То выводим значение
+            } else if (doubleID.containsKey(printName)) { // Если это дабл
+                System.out.println("The double variable " + printName + " = " + doubleID.get(printName)); // То выводим ее значение
+            } else { // Если это что-то другое
+                System.out.println(printName); // То тоже выводим
+            }
+
+            Body();
+        } else {
+            System.out.println("Out function mut ends with ');' !");
+            err(printName);
         }
 
     }
@@ -134,7 +159,7 @@ public class Parser {
         } else if (doubleID.containsKey(tokenName)) {
             DOUBLEARYTH(tokenName);
         } else { // Иначе ошибка
-            System.out.println("Incorrect symbol!");
+            System.out.println("Cannot find the variable!");
             err(tokenName);
         }
 
@@ -187,6 +212,20 @@ public class Parser {
 
     }
 
+    //todo сделать 3 фунции ниже
+    private void IF () {
+        Body();
+    }
+
+    private void FOR () {
+        Body();
+    }
+
+    private void WHILE () {
+        Body();
+    }
+
+
     private void INT () { // Инициализация булевой переменной. tokenName - имя переменной
 
         String token; // Просто токен
@@ -210,8 +249,9 @@ public class Parser {
                         token = token.substring(0, token.length() - 1); // Удалили последний символ
 
                         if (token.matches("\\d+")) { // Если значение - число
-                            int value = Integer.getInteger(token);
+                            int value = Integer.parseInt(token);
                             integerID.put(tokenName, value); // И положили его
+                            Body();
                         } else { // Если не равняеться числу
                             System.out.println("The variable must = digit !");
                             err(token);
@@ -234,7 +274,6 @@ public class Parser {
         }
 
     }
-
 
     private void DOUBLE () { // Инициализация булевой переменной. tokenName - имя переменной
 
@@ -261,6 +300,7 @@ public class Parser {
                         if (token.matches("(\\d+).(\\d+)")) { // Если значение - число
                             double value = Double.parseDouble(token);
                             doubleID.put(tokenName, value); // И положили его
+                            Body();
                         } else { // Если не равняеться числу
                             System.out.println("The variable must = digit.digit!");
                             err(token);
@@ -293,7 +333,7 @@ public class Parser {
         
         char first = name.charAt(0);
 
-        if (name.equalsIgnoreCase("out") || // Если имя - зарезервиравано то ошибка
+        if (    name.equalsIgnoreCase("out") || // Если имя - зарезервиравано то ошибка
                 name.equalsIgnoreCase("for") ||
                 name.equalsIgnoreCase("if") ||
                 name.equalsIgnoreCase("while") ||
@@ -301,7 +341,10 @@ public class Parser {
                 name.equalsIgnoreCase("int") ||
                 name.equalsIgnoreCase("double")
                 ) {
-            System.out.println("Variable cannot named with ordered name!");
+            System.out.println("Variable cannot named with reserved name!");
+            return false;
+        } else if (name.matches("(\\W)*")) { // Проверка на нечитаемые символы - любой символ, кроме буквенного или цифрового символа или знака подчёркивания
+            System.out.println("Variable cannot have special symbols in the name! Only English letters, numbers and _");
             return false;
         } else if ( Character.isDigit( name.charAt(0) ) ) { // Если первый символ - цифра то ошиба
             System.out.println("Variable name must starts with letter!");
@@ -322,7 +365,8 @@ public class Parser {
     }
 
     private void err (String in) {
-        System.out.println("Error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() );
+        System.out.println("Error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() + " Row = " + tokenizer.GetTokenRow());
+        PrintAllVariables();
     }
 
 }

@@ -10,6 +10,13 @@ import java.io.IOException;
  *  Lexical analyzer
  */
 
+/**
+ * Lexer - испольняет функции лексического анализатора и, частично, синтаксического. Функции:
+ * - Проверяет корректность ввода зарезервированных слов
+ * - Проверяет порядок (Например, что полсе for стоит ( и тд )
+ * - Выводит ошибки, если есть проблемы при выводе цепочек.
+ */
+
 public class Lexer {
 
     private Tokenizer tokenizer;
@@ -67,6 +74,7 @@ public class Lexer {
                 && tokenizer.GetNextToken().equals("}")
                 ) { // Если программа закончилась
             System.out.println("Correct!");
+            tokenizer.PrintAllTokens();
             isCorrect = true;
             return 0;
         } else if (token.equals("}")) { // Если закрыли цикл или if
@@ -304,7 +312,7 @@ public class Lexer {
 
         } else {
             err(tokenName);
-            System.out.println("Your cannont just paste something!");
+            System.out.println("Your cannot just paste something!");
             return -1;
         }
 
@@ -312,12 +320,10 @@ public class Lexer {
 
     /**
      * Sygnalize of error, break the flag and print token with a mistake and token before that
-     * @param in
+     * @param in - token, where error was taking
      */
-
-
     private void err (String in) {
-        System.out.println("Lexical error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() );
+        System.out.println("Lexical error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() + " Row = " + tokenizer.GetTokenRow() );
         isCorrect = false;
     }
 
