@@ -22,19 +22,20 @@ public class Parser {
 
     Tokenizer tokenizer;
 
-    public boolean isCorrect;
+    public boolean isCorrect; // Флаг орректности программы с точки зрения парсера
     private int deep; // Глубина погруения в {}
 
     Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
     Map <String, Double> doubleID; // Дробные переменные
-    String res;
 
+    /**
+     * Constuctor, initialised the Map and other variables
+     */
     public Parser () {
 
         /*
             Да, по хорошему надо бы сделать древовидные структуры, но лень писать еще и класс дерево.
         */
-
         tokenizer = new Tokenizer();
         tokenizer.SetTokenPosition(0);
         integerID = new HashMap<>();
@@ -44,6 +45,11 @@ public class Parser {
 
     }
 
+    /**
+     * Function parsing the file and start work syntax and semantic analyzer
+     * @param filename - File to parse
+     * @throws IOException
+     */
     public void Parse (String filename) throws IOException {
 
         tokenizer.Parse(filename); // Двупроходный интерпритатор получаеться у нас
@@ -51,26 +57,32 @@ public class Parser {
         System.out.println("Parser starts work");
 
         tokenizer.SetTokenPosition (6); // Установили поизицю токенов на 7 (с 0 считаем - 6). Тк у нас программа корректная
-                                   // а первые 6 токенов это int main ( void ) {
+        // а первые 6 токенов это int main ( void ) {
 
         Body();
 
     }
 
+    /**
+     * Function printing all variables with them
+     */
     public void PrintAllVariables() {
-        System.out.println("Int:");
+        System.out.println("\nInt:");
         for (Map.Entry e : integerID.entrySet()) {
             System.out.println(e.getKey() + " = " + e.getValue());
         }
 
-        System.out.println("\nDouble:");
+        System.out.println("Double:");
         for (Map.Entry e : doubleID.entrySet()) {
             System.out.println(e.getKey() + " = " + e.getValue());
         }
 
     }
 
-    void Body () {
+    /**
+     * Function parsing body of statement and call another methods
+     */
+    private void Body () {
 
         String token = tokenizer.GetNextToken();
 
@@ -89,7 +101,7 @@ public class Parser {
         } else if (token.equalsIgnoreCase("double")) { // Инициализация double
             DOUBLE();
         } else if (token.equalsIgnoreCase("return")) { // Если программа закончилась
-            System.out.println("Programm finished!");
+            System.out.println("Program finished!");
             isCorrect = true;
         } else if (token.equals("}")) { // Если закрыли цикл или if
             deep--;
@@ -151,7 +163,10 @@ public class Parser {
         return 0;
     }
 
-
+    /**
+     * Function Looks at variable stack and use specialfunction to it (intaryth and doubleayth) or print error
+     * @param tokenName - variable to work
+     */
     private void ARYTH (String tokenName) {
         // Если переменная существет, то работаем с ней, в зависимости от ее типа
         if (integerID.containsKey(tokenName) ) {
@@ -165,8 +180,7 @@ public class Parser {
 
     }
 
-
-    private void INTARYTH(String tokenName) { // tokenName гарантиравано существует
+    private void INTARYTH(String tokenName) { // tokenName гарантиравано существует как интовая переменная
 
         String token = tokenizer.GetNextToken();
         String tokenName2 = tokenizer.GetNextToken();
@@ -258,7 +272,7 @@ public class Parser {
                         }
 
                     } else { // Если не закрыто ;
-                        System.out.println("The defenition must be closed with ';' !");
+                        System.out.println("The definition must be closed with ';' !");
                         err(token);
                     }
 
@@ -307,7 +321,7 @@ public class Parser {
                         }
 
                     } else { // Если не закрыто ;
-                        System.out.println("The defenition must be closed with ';' !");
+                        System.out.println("The definition must be closed with ';' !");
                         err(token);
                     }
 
@@ -338,6 +352,8 @@ public class Parser {
                 name.equalsIgnoreCase("if") ||
                 name.equalsIgnoreCase("while") ||
                 name.equalsIgnoreCase("main") ||
+                name.equalsIgnoreCase("else") ||
+                name.equalsIgnoreCase("return") ||
                 name.equalsIgnoreCase("int") ||
                 name.equalsIgnoreCase("double")
                 ) {
@@ -366,7 +382,6 @@ public class Parser {
 
     private void err (String in) {
         System.out.println("Error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() + " Row = " + tokenizer.GetTokenRow());
-        PrintAllVariables();
     }
 
 }

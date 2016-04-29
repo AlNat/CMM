@@ -74,7 +74,6 @@ public class Lexer {
                 && tokenizer.GetNextToken().equals("}")
                 ) { // Если программа закончилась
             System.out.println("Correct!");
-            tokenizer.PrintAllTokens();
             isCorrect = true;
             return 0;
         } else if (token.equals("}")) { // Если закрыли цикл или if
