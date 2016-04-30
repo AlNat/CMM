@@ -464,7 +464,7 @@ public class Parser {
 
         String variableName = tokenizer.GetNextToken();
         String operator; // Оператор, с которым работаем
-        boolean flag = false; // Флаг правильности выраения
+        boolean flag; // Флаг правильности выраения
 
         double value; // Дабл тк int в дабл вместить можно
         double value2;
@@ -519,26 +519,6 @@ public class Parser {
     }
 
     /**
-     *
-     */
-    private void FOR () {
-        //TODO Пока пропусто опускаем все что внутри
-        String token = tokenizer.GetNextToken();
-        int l = deep; // На будущее - глубина до которой пропускаем
-
-        while (!token.equals("}") && deep == l) {
-            token = tokenizer.GetNextToken();
-
-            if (token.equals("ERROR")) {
-                err(token);
-            }
-
-        }
-
-        Body();
-    }
-
-    /**
      * Function implements while statement
      */
     private void WHILE () {
@@ -573,22 +553,22 @@ public class Parser {
         if ( CONDITION(value, value2, operator) ) { // Если выражение верно то пропускаем все тело цикла
             SKIPBODY();
         } else { // Иначе выполняем
-            String a = tokenizer.GetNextToken(); // )
+            tokenizer.GetNextToken(); // )
             tokenizer.GetNextToken(); // {
             Body();
-            // TODO Доделать
+            // TODO Доделать. Нужна петля выполнения
         }
 
     }
 
     /**
-     * TODO Доделать описание фукнции
-     * @param value
-     * @param value2
-     * @param operator
-     * @return
+     * Function checking statment
+     * @param value left value
+     * @param value2 right value
+     * @param operator operator between
+     * @return true if value operator value2
      */
-    boolean CONDITION (double value, double value2, String operator) {
+    private boolean CONDITION (double value, double value2, String operator) {
         boolean flag = false;
         switch (operator) { // Проверили выраение на истинность
             case "<":
@@ -629,6 +609,27 @@ public class Parser {
 
         return flag;
     }
+
+    /**
+     * Function implementing for condition
+     */
+    private void FOR () {
+        //TODO Доделать. Пока просто опускаем все что внутри.
+        String token = tokenizer.GetNextToken();
+        int l = deep; // На будущее - глубина до которой пропускаем
+
+        while (!token.equals("}") && deep == l) {
+            token = tokenizer.GetNextToken();
+
+            if (token.equals("ERROR")) {
+                err(token);
+            }
+
+        }
+
+        Body();
+    }
+
 
     /**
      * This function adding the variable to variables stack if statement is correct
