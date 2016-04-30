@@ -42,5 +42,11 @@ int main ( void ) {
 
 	out ( c );
 
+	a = 0;
+
+	for ( a; a < 4; 1 ) {
+	    out ( a );
+	}
+
 	return 0;
 }

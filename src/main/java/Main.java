@@ -36,7 +36,7 @@ public class Main {
         }
 
         // DEBUG
-        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 4.cmm";
+        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 5.cmm";
 
         Lexer lex = new Lexer();
         Parser par = new Parser();

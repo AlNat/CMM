@@ -26,6 +26,7 @@ public class Parser {
 
     public boolean isCorrect; // Флаг орректности программы с точки зрения парсера
     private int deep; // Глубина погруения в {}
+    private int start; // Место начало петли
 
     private Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
     private Map <String, Double> doubleID; // Дробные переменные
@@ -108,6 +109,7 @@ public class Parser {
             isCorrect = true;
         } else if (token.equals("}")) { // Если закрыли цикл или if
             deep--;
+            tokenizer.SetTokenPosition(start); // Пошли в петлю
             Body();
         } else {
             ARYTH(token); // Если все выше не подошло, то мы получили работу с переменной или ошибку
@@ -515,6 +517,8 @@ public class Parser {
 
         }
 
+        start = tokenizer.GetCurrentTokenNumber(); // Убрали петлю
+
         Body();
     }
 
@@ -523,12 +527,11 @@ public class Parser {
      */
     private void WHILE () {
 
-        int start = tokenizer.GetCurrentTokenNumber(); // Номер токена, к которому будем возвращаться
+        start = tokenizer.GetCurrentTokenNumber() - 1; // Номер токена, к которому будем возвращаться
 
         tokenizer.GetNextToken(); // (
         String variableName = tokenizer.GetNextToken();
         String operator; // Оператор, с которым работаем
-        boolean flag = false; // Флаг правильности выраения
 
         double value; // Дабл тк int в дабл вместить можно
         double value2;
@@ -550,13 +553,13 @@ public class Parser {
             return;
         }
 
-        if ( CONDITION(value, value2, operator) ) { // Если выражение верно то пропускаем все тело цикла
+        if ( !CONDITION(value, value2, operator) ) { // Если выражение не верно то пропускаем все тело цикла
             SKIPBODY();
         } else { // Иначе выполняем
             tokenizer.GetNextToken(); // )
             tokenizer.GetNextToken(); // {
             Body();
-            // TODO Доделать. Нужна петля выполнения
+
         }
 
     }
@@ -615,6 +618,7 @@ public class Parser {
      */
     private void FOR () {
         //TODO Доделать. Пока просто опускаем все что внутри.
+        // Идея - сделать просто преобразование тупо к while этого цикла.
         String token = tokenizer.GetNextToken();
         int l = deep; // На будущее - глубина до которой пропускаем
 
