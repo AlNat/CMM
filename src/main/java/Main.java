@@ -35,29 +35,29 @@ public class Main {
             filename = args[0]; // Иначае взяли имя файла
         }
 
-        filename = "D:\\test 4.cmm"; // DEBUG
+        // DEBUG
+        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 4.cmm";
 
         Lexer lex = new Lexer();
         Parser par = new Parser();
 
-        try { // Пробуем фацл лексическим анализатором
-           lex.Parse(filename);
+        try { // Пробуем файл лексическим анализатором
+            lex.Parse(filename);
+
+            if (lex.isCorrect) { // Если у лексера нет ошибок
+
+                System.out.println("File is lexical correct");
+
+                par.Parse(filename); // То пробуем его парсером
+
+                if (par.isCorrect) { // Если парсер все сделал
+                    System.out.println("File is correct and complete!");
+                }
+
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        if (lex.isCorrect) { // Если у лексера нет ошибок то пробуем его парсером
-            try {
-                par.Parse(filename);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (par.isCorrect) {
-            System.out.println("File is correct!");
-        } else {
-            System.out.println("\nFile incorrect. Please, fix the bugs and come back again!");
         }
 
 

@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * Created by AlNat on 20.04.2016.
+ * @author Alex Natarov
+ * Licensed by Apache License, Version 2.0
  */
 
 
@@ -26,7 +28,7 @@ public class Tokenizer {
     private int currentToken; // Указатель на текущий токен
 
     public Tokenizer () {
-        tokens = new ArrayList<String>();
+        tokens = new ArrayList<>();
         tokensPage = new ArrayList<>();
         currentToken = 0;
     }
@@ -42,7 +44,6 @@ public class Tokenizer {
     }
 
     /**
-     *
      * @return next token
      */
     public String GetNextToken () {
@@ -60,7 +61,6 @@ public class Tokenizer {
     }
 
     /**
-     *
      * @return number of row< where token placed
      */
     public int GetTokenRow() { // Вернули номер строчки, где этот токен
@@ -68,11 +68,17 @@ public class Tokenizer {
     }
 
     /**
-     *
      * @return token, before next
      */
     public String GetPrevToken () {
         return tokens.get(currentToken - 2);
+    }
+
+    /**
+     * @return currentToken
+     */
+    public int GetCurrentTokenNumber () {
+        return currentToken;
     }
 
     /**

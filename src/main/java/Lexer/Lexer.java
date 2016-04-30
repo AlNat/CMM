@@ -4,13 +4,13 @@ import java.io.IOException;
 
 /**
  * Created by AlNat on 19.04.2016.
+ * @author Alex Natarov
+ * Licensed by Apache License, Version 2.0
  */
 
 /**
  *  Lexical analyzer
- */
-
-/**
+ *
  * Lexer - испольняет функции лексического анализатора и, частично, синтаксического. Функции:
  * - Проверяет корректность ввода зарезервированных слов
  * - Проверяет порядок (Например, что полсе for стоит ( и тд )
@@ -20,14 +20,21 @@ import java.io.IOException;
 public class Lexer {
 
     private Tokenizer tokenizer;
-
     public boolean isCorrect; // Флаг, обзначающий корректность программы с точки зрения лексера
 
-
+    /**
+     * Constructor, where variables isntalizing
+     */
     public Lexer () {
         tokenizer = new Tokenizer();
+        isCorrect = false;
     }
 
+    /**
+     * Function parsing the file and start work lexical analyzer
+     * @param filename - File to parse
+     * @throws IOException
+     */
     public void Parse (String filename) throws IOException {
 
         isCorrect = false;
@@ -52,7 +59,9 @@ public class Lexer {
 
     }
 
-
+    /**
+     * Function parsing body of statement and call another methods
+     */
     private int Body () { // Распарсиваем тело функции
 
         String token = tokenizer.GetNextToken();
@@ -73,7 +82,6 @@ public class Lexer {
                 && tokenizer.GetNextToken().equals("0;")
                 && tokenizer.GetNextToken().equals("}")
                 ) { // Если программа закончилась
-            System.out.println("Correct!");
             isCorrect = true;
             return 0;
         } else if (token.equals("}")) { // Если закрыли цикл или if
@@ -85,7 +93,10 @@ public class Lexer {
         return -1;
     }
 
-
+    /**
+     * Function checking commentary lexical
+     * @return error if exsists
+     */
     private int COMMENTARY () {
 
         String token;
@@ -105,13 +116,38 @@ public class Lexer {
         return 0;
     }
 
-
+    /**
+     * Function checking if circle lexical
+     */
     private void IF() {
 
         String token = tokenizer.GetNextToken();
 
         if (token.equals("(")) {
-            IFHEAD();
+
+            token = tokenizer.GetNextToken();
+
+            token = tokenizer.GetNextToken();
+
+            if (token.equals("==")
+                    || token.equals(">=")
+                    || token.equals("<=")
+                    || token.equals("!=")
+                    || token.equals(">")
+                    || token.equals("<")
+                    ) {
+                String token2 = tokenizer.GetNextToken();
+                if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
+                    Body();
+                } else {
+                    System.out.println("if must be closed!");
+                    err(token);
+                }
+            } else {
+                System.out.println("If must have the condition!");
+                err(token);
+            }
+
         } else {
             System.out.println("If must have () block!");
             err(token);
@@ -120,39 +156,44 @@ public class Lexer {
     }
 
 
-    private void IFHEAD () {
+    /**
+     * Function checking for circle lexical
+     */
+    private void FOR () {
 
-        String token = tokenizer.GetNextToken();
-
-        token = tokenizer.GetNextToken();
-
-        if (token.equals("==")
-                || token.equals(">=")
-                || token.equals("<=")
-                || token.equals("!=")
-                || token.equals(">")
-                || token.equals("<")
-                ) {
-            String token2 = tokenizer.GetNextToken();
-            if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
-                Body();
-            } else {
-                System.out.println("if must be closed!");
-                err(token);
-            }
-        } else {
-            System.out.println("If must have the condition!");
-            err(token);
-        }
-
-    }
-
-
-    private void FOR() {
-
+        // ( a; a < 4; 1 ) {
         String token = tokenizer.GetNextToken();
         if (token.equals("(")) {
-            FORHEAD();
+
+            token = tokenizer.GetNextToken(); // a
+
+            if (token.endsWith(";")) {
+
+                tokenizer.GetNextToken(); // a
+                tokenizer.GetNextToken(); // <
+                token = tokenizer.GetNextToken(); // 4;
+
+                if (token.endsWith(";")) {
+
+                    token = tokenizer.GetNextToken(); // 1
+
+                    if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
+                        Body();
+                    } else {
+                        System.out.println("For must be closed!");
+                        err(token);
+                    }
+
+                } else {
+                    System.out.println("For must have ends condition");
+                    err(token);
+                }
+
+            } else {
+                System.out.println("For must have variable to circle");
+                err(token);
+            }
+
         } else {
             System.out.println("For must have () block!");
             err(token);
@@ -161,47 +202,39 @@ public class Lexer {
     }
 
 
-    private int FORHEAD () {
-
-        String token = tokenizer.GetNextToken();
-
-        if (token.endsWith(";")) {
-
-            token = tokenizer.GetNextToken();
-
-            if (token.endsWith(";")) {
-
-                token = tokenizer.GetNextToken();
-
-                if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
-                    Body();
-                    return 0;
-                } else {
-                    System.out.println("For must be closed!");
-                    err(token);
-                    return -1;
-                }
-
-            } else {
-                System.out.println("For must have ends condition");
-                err(token);
-                return -1;
-            }
-
-        } else {
-            System.out.println("For must have variable to circle");
-            err(token);
-            return -1;
-        }
-
-    }
-
-
+    /**
+     * Function checking while lexical
+     */
     private void WHILE() {
+
+        // ( a <= 4 )
 
         String token = tokenizer.GetNextToken();
         if (token.equals("(")) {
-            WHILEHEAD();
+
+            tokenizer.GetNextToken(); // a
+
+            token = tokenizer.GetNextToken(); // <=
+
+            if (       token.equals("==")
+                    || token.equals(">=")
+                    || token.equals("<=")
+                    || token.equals("!=")
+                    || token.equals(">")
+                    || token.equals("<")
+                    ) {
+                tokenizer.GetNextToken(); // 4
+                if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
+                    Body();
+                } else {
+                    System.out.println("While must be closed!");
+                    err(token);
+                }
+            } else {
+                System.out.println("While must have condition!");
+                err(token);
+            }
+
         } else {
             System.out.println("While must have () block!");
             err(token);
@@ -209,34 +242,9 @@ public class Lexer {
 
     }
 
-
-    private void WHILEHEAD() {
-        String token = tokenizer.GetNextToken();
-
-        token = tokenizer.GetNextToken();
-
-        if (       token.equals("==")
-                || token.equals(">=")
-                || token.equals("<=")
-                || token.equals("!=")
-                || token.equals(">")
-                || token.equals("<")
-                ) {
-            String token2 = tokenizer.GetNextToken();
-            if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
-                Body();
-            } else {
-                System.out.println("While must be closed!");
-                err(token);
-            }
-        } else {
-            System.out.println("While must have condition!");
-            err(token);
-        }
-
-    }
-
-
+    /**
+     * Function checking out function lexical
+     */
     private void OUT () {
 
         if (tokenizer.GetNextToken().equals("(")) {
@@ -251,7 +259,9 @@ public class Lexer {
 
     }
 
-
+    /**
+     * Function checking variable init lexical
+     */
     private void INIT() {
 
         String token; // Просто токен
@@ -272,7 +282,11 @@ public class Lexer {
 
     }
 
-
+    /**
+     * Function checking arythmetic lexical
+     * @param tokenName name of variable to do
+     * @return error
+     */
     private int ARYTH (String tokenName) {
 
         String token = tokenizer.GetNextToken();
@@ -324,6 +338,7 @@ public class Lexer {
     private void err (String in) {
         System.out.println("Lexical error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() + " Row = " + tokenizer.GetTokenRow() );
         isCorrect = false;
+        System.exit(-1);
     }
 
 
