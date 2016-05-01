@@ -95,7 +95,9 @@ public class Tokenizer {
      * @param index - position to set
      */
     public void SetTokenPosition (int index) {
-        currentToken = index;
+        if (index != 0) { // Проверка на ошибочность токена
+            currentToken = index;
+        }
     }
 
     /**

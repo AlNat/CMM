@@ -7,17 +7,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by AlNat on 31.03.2016.
+ * Created by AlNat on 31.03.2016
  * @author Alex Natarov
  * Licensed by Apache License, Version 2.0
  */
 
 /**
- * Syntax and Semantic analyzer
+ * Syntax and Semantic analyzer. Also interpretator.
  *
  * Парсер - исполняет функции синтаксического и семантического анализатора, а так-же выполняет наш файл.
  *
- * /// Пока вложенные if и циклы не реализованны
+ * //TODO Пока вложенные if и циклы не реализованны
  */
 
 public class Parser {
@@ -122,32 +122,30 @@ public class Parser {
      */
     private void OUT () {
 
-        tokenizer.GetNextToken(); // Скобка
+        tokenizer.GetNextToken(); // (
         String printName = tokenizer.GetNextToken();
 
-        if (tokenizer.GetNextToken().equals(");")) {
+        while (!printName.equals(");")) {
 
             if (integerID.containsKey(printName)) { // Если это интовая переменная
-                System.out.println("The int variable " + printName + " = " + integerID.get(printName)); // То выводим значение
+                System.out.println("The int variable " + printName + " = " + integerID.get(printName) ); // То выводим значение
             } else if (doubleID.containsKey(printName)) { // Если это дабл
-                System.out.println("The double variable " + printName + " = " + doubleID.get(printName)); // То выводим ее значение
+                System.out.println("The double variable " + printName + " = " + doubleID.get(printName) ); // То выводим ее значение
             } else { // Если это что-то другое
-                System.out.println(printName); // То тоже выводим
+                System.out.print(printName + " "); // То тоже выводим
             }
 
-            Body();
-        } else {
-            System.out.println("Out function mut ends with ');' !");
-            err(printName);
+            printName = tokenizer.GetNextToken();
         }
+
+        Body();
 
     }
 
     /**
      * Function skipping all int the commentary braskets
-     * @return error is is
      */
-    private int COMMENTARY () {
+    private void COMMENTARY () {
 
         String token = tokenizer.GetNextToken();
 
@@ -157,14 +155,12 @@ public class Parser {
             if (token.equals("ERROR")) {
                 System.out.println("Comments must be closed!");
                 err(token);
-                return -1;
             }
 
         }
 
         Body();
 
-        return 0;
     }
 
     /**
@@ -172,6 +168,7 @@ public class Parser {
      * @param tokenName - variable to work
      */
     private void ARYTH (String tokenName) {
+
         // Если переменная существет, то работаем с ней, в зависимости от ее типа
         if (integerID.containsKey(tokenName) ) {
             INTARYTH(tokenName);
@@ -187,9 +184,8 @@ public class Parser {
     /**
      * Implement int arythmetic
      * @param tokenName - name of variable to work
-     * @return error if exsist
      */
-    private int INTARYTH(String tokenName) { // tokenName гарантиравано существует как интовая переменная
+    private void INTARYTH(String tokenName) { // tokenName гарантиравано существует как интовая переменная
 
         String token = tokenizer.GetNextToken();
         String tokenName2 = tokenizer.GetNextToken();
@@ -197,101 +193,75 @@ public class Parser {
         if (doubleID.containsKey(tokenName2)) { // Если попытались изменить через double
             System.out.println("Incompatable types!");
             err(tokenName2);
-            return -1;
+            return;
         }
 
-        if (token.equals("=") ) {  // Если есть =
+        int value;
 
-            int value;
+        if (tokenName2.endsWith(";")) { // Если это конструкция вида name = something;
 
-            if (tokenName2.endsWith(";")) { // Если это конструкция вида name = something;
+            String t = tokenName2.substring(0, tokenName2.length() - 1); // Удалили последний символ
 
-                String t = tokenName2.substring(0, tokenName2.length() - 1); // Удалили последний символ
+            if (integerID.containsKey(t)) { // Если int = int;
+                value = integerID.get(t);
+                integerID.put(tokenName, value);
+                Body();
+                return;
+            } else if (doubleID.containsKey(t)) { // Если int = double;
+                System.out.println("Your cannot write int = double!");
+                err(token);
+            } else { // Если int = value;
+                value = getDigit(tokenName2);
+                integerID.put(tokenName, value);
+                Body();
+                return;
+            }
+        } else { // Если name = something ARUTH something;
 
-                if (integerID.containsKey(t)) { // Если int = int;
-                    value = integerID.get(t);
-                    integerID.put(tokenName, value);
-                    Body();
-                    return 1;
-                } else if (doubleID.containsKey(t)) { // Если int = double;
-                    System.out.println("Your cannot write int = double!");
-                    err(token);
-                    return -1;
-                } else { // Если int = value;
-                    value = getDigit(tokenName2);
-                    integerID.put(tokenName, value);
-                    Body();
-                    return 1;
-                }
-            } else { // Если name = something ARUTH something;
-
-                if (tokenName2.equals(tokenName)) {// Если это конструкция вида name = name + something;
-                    value = integerID.get(tokenName);
-                } else { // Если name = something + something;
-                    value = getDigit(tokenName2);
-                }
-
-                token = tokenizer.GetNextToken();
-
-                // Проверяем что это одно из 4 арифметических операций
-                switch (token) {
-                    case "+":  // Если +
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            int tmp = getDigit(token);
-                            value += tmp;
-                            integerID.put(tokenName, value);
-                            Body();
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "-":  // Если -
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            int tmp = getDigit(token);
-                            value -= tmp;
-                            integerID.put(tokenName, value);
-                            Body();
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "*":  // Если *
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            int tmp = getDigit(token);
-                            value *= tmp;
-                            integerID.put(tokenName, value);
-                            Body();
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "/":  // Если /
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            int tmp = getDigit(token);
-                            value /= tmp;
-                            integerID.put(tokenName, value);
-                            Body();
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    default:
-                        System.out.println("Operator unexpected!");
-                        err(token);
-                        break;
-                }
+            if (tokenName2.equals(tokenName)) {// Если это конструкция вида name = name + something;
+                value = integerID.get(tokenName);
+            } else { // Если name = something + something;
+                value = getDigit(tokenName2);
             }
 
-        } else { // Если нет равно
-            System.out.println("There are only two kinds of aruthmetic! \n Name = something; \n Name = something +(-,*,\\) something !");
-            err(token);
-        }
+            token = tokenizer.GetNextToken();
+            int tmp;
 
-        return 0;
+            switch (token) {// Проверяем что это одно из 4 арифметических операций
+                case "+":  // Если +
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDigit(token);
+                    value += tmp;
+                    integerID.put(tokenName, value);
+                    Body();
+                    break;
+                case "-":  // Если -
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDigit(token);
+                    value -= tmp;
+                    integerID.put(tokenName, value);
+                    Body();
+                    break;
+                case "*":  // Если *
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDigit(token);
+                    value *= tmp;
+                    integerID.put(tokenName, value);
+                    Body();
+                    break;
+                case "/":  // Если /
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDigit(token);
+                    value /= tmp;
+                    integerID.put(tokenName, value);
+                    Body();
+                    break;
+                default:
+                    System.out.println("Operator unexpected!");
+                    err(token);
+                    break;
+            }
+        }
 
     }
 
@@ -322,114 +292,86 @@ public class Parser {
     /**
      * Implement double arythmetic
      * @param tokenName - name of variable to work
-     * @return error if exsist
      */
-    private int DOUBLEARYTH(String tokenName) {
+    private void DOUBLEARYTH(String tokenName) {
 
         String token = tokenizer.GetNextToken();
-        String tokenName2 = tokenizer.GetNextToken();
+        String variable = tokenizer.GetNextToken();
 
-        if (integerID.containsKey(tokenName2)) { // Если попытались изменить через double
+        if (integerID.containsKey(variable)) { // Если попытались изменить через double
             System.out.println("Incompatable types!");
-            err(tokenName2);
-            return -1;
-        } else if (token.equals("=") ) {  // Если есть =
-
-            double value;
-
-            if (tokenName2.endsWith(";")) { // Если это конструкция вида name = something;
-
-                String t = tokenName2.substring(0, tokenName2.length() - 1); // Удалили последний символ
-
-                if (doubleID.containsKey(t)) { // Если double = double;
-                    value = doubleID.get(t);
-                    doubleID.put(tokenName, value);
-                    Body();
-                    return 1;
-                } else if (integerID.containsKey(t)) { // Если int = double;
-                    System.out.println("Your cannot write double = int!");
-                    err(token);
-                    return -1;
-                } else { // Если double = value;
-                    value = getDouble(tokenName2);
-                    doubleID.put(tokenName, value);
-                    Body();
-                    return 1;
-                }
-            } else { // Если name = something ARUTH something;
-
-                if (tokenName2.equals(tokenName)) {// Если это конструкция вида name = name + something;
-                    value = doubleID.get(tokenName);
-                } else { // Если name = something + something;
-                    value = getDouble(tokenName2);
-                }
-
-                token = tokenizer.GetNextToken();
-
-                // Проверяем что это одно из 4 арифметических операций
-                switch (token) {
-                    case "+":  // Если +
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            double tmp = getDouble(token);
-                            value += tmp;
-                            doubleID.put(tokenName, value);
-                            Body();
-                            return 0;
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "-":  // Если -
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            double tmp = getDouble(token);
-                            value -= tmp;
-                            doubleID.put(tokenName, value);
-                            Body();
-                            return 0;
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "*":  // Если *
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            double tmp = getDouble(token);
-                            value *= tmp;
-                            doubleID.put(tokenName, value);
-                            Body();
-                            return 0;
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    case "/":  // Если /
-                        token = tokenizer.GetNextToken(); // Положили значение
-                        if (token.endsWith(";")) { // Если выраение заончилось ; то именили знчаение переменной
-                            double tmp = getDouble(token);
-                            value /= tmp;
-                            doubleID.put(tokenName, value);
-                            Body();
-                            return 0;
-                        } else {
-                            err(tokenName);
-                        }
-                        break;
-                    default:
-                        System.out.println("Operator unexpected!");
-                        err(token);
-                        break;
-                }
-            }
-
-        } else { // Если нет равно
-            System.out.println("There are only two kinds of aruthmetic! \n Name = something; \n Name = something +(-,*,\\) something !");
-            err(token);
-            return -1;
+            err(variable);
+            return;
         }
 
-        return 2;
+        double value;
+
+        if (variable.endsWith(";")) { // Если это конструкция вида name = something;
+
+            String t = variable.substring(0, variable.length() - 1); // Удалили последний символ
+
+            if (doubleID.containsKey(t)) { // Если double = double;
+                value = doubleID.get(t);
+                doubleID.put(tokenName, value);
+                Body();
+                return;
+            } else if (integerID.containsKey(t)) { // Если int = double;
+                System.out.println("Your cannot write double = int!");
+                err(token);
+                return;
+            } else { // Если double = value;
+                value = getDouble(variable);
+                doubleID.put(tokenName, value);
+                Body();
+                return;
+            }
+        } else { // Если name = something ARUTH something;
+
+            if (variable.equals(tokenName)) {// Если это конструкция вида name = name + something;
+                value = doubleID.get(tokenName);
+            } else { // Если name = something + something;
+                value = getDouble(variable);
+            }
+
+            token = tokenizer.GetNextToken();
+            double tmp;
+
+            // Проверяем что это одно из 4 арифметических операций
+            switch (token) {
+                case "+":  // Если +
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDouble(token);
+                    value += tmp;
+                    doubleID.put(tokenName, value);
+                    Body();
+                    break;
+                case "-":  // Если -
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDouble(token);
+                    value -= tmp;
+                    doubleID.put(tokenName, value);
+                    Body();
+                    break;
+                case "*":  // Если *
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDouble(token);
+                    value *= tmp;
+                    doubleID.put(tokenName, value);
+                    Body();
+                    break;
+                case "/":  // Если /
+                    token = tokenizer.GetNextToken(); // Положили значение
+                    tmp = getDouble(token);
+                    value /= tmp;
+                    doubleID.put(tokenName, value);
+                    Body();
+                    break;
+                default:
+                    System.out.println("Operator unexpected!");
+                    err(token);
+                    break;
+            }
+        }
 
     }
 
@@ -506,7 +448,7 @@ public class Parser {
     private void SKIPBODY () {
 
         String token = tokenizer.GetNextToken();
-        int l = deep; // На будущее - глубина до которой пропускаем
+        int l = deep; // Глубина до которой пропускаем
 
         while (!token.equals("}") && deep == l) {
             token = tokenizer.GetNextToken();
@@ -553,7 +495,7 @@ public class Parser {
             return;
         }
 
-        if ( !CONDITION(value, value2, operator) ) { // Если выражение не верно то пропускаем все тело цикла
+        if ( !CONDITION(value, value2, operator) ) { // Если выражение не верно, то пропускаем все тело цикла
             SKIPBODY();
         } else { // Иначе выполняем
             tokenizer.GetNextToken(); // )
@@ -618,9 +560,12 @@ public class Parser {
      */
     private void FOR () {
         //TODO Доделать. Пока просто опускаем все что внутри.
+        // for ( a; a < 3; 1 ) {
         // Идея - сделать просто преобразование тупо к while этого цикла.
-        String token = tokenizer.GetNextToken();
-        int l = deep; // На будущее - глубина до которой пропускаем
+        String token = tokenizer.GetNextToken(); // (
+        int l = deep; // Глубина до которой пропускаем
+
+        token = tokenizer.GetNextToken();
 
         while (!token.equals("}") && deep == l) {
             token = tokenizer.GetNextToken();
@@ -653,31 +598,12 @@ public class Parser {
 
             if ( isNameCorrect(tokenName) ) { // Если имя корректно
 
-                if (tokenizer.GetNextToken().equals("=")) { // Если есть равно
-                    token = tokenizer.GetNextToken(); // Получили значение
+                tokenizer.GetNextToken(); // =
+                token = tokenizer.GetNextToken(); // Получили значение
 
-                    if (token.endsWith(";")) { // Если обьявление корреткно
-
-                        token = token.substring(0, token.length() - 1); // Удалили последний символ
-
-                        if (token.matches("\\d+")) { // Если значение - число
-                            int value = Integer.parseInt(token);
-                            integerID.put(tokenName, value); // И положили его
-                            Body();
-                        } else { // Если не равняеться числу
-                            System.out.println("The variable must = digit !");
-                            err(token);
-                        }
-
-                    } else { // Если не закрыто ;
-                        System.out.println("The definition must be closed with ';' !");
-                        err(token);
-                    }
-
-                } else { // Если нету равно
-                    System.out.println("The variable must be initialized with =");
-                    err(tokenName);
-                }
+                int value = getDigit(token);
+                integerID.put(tokenName, value); // И положили его
+                Body();
 
             } else { // Если имя не корректно
                 err(tokenName);
@@ -705,31 +631,13 @@ public class Parser {
 
             if ( isNameCorrect(tokenName) ) { // Если имя корректно
 
-                if (tokenizer.GetNextToken().equals("=")) { // Если есть равно
-                    token = tokenizer.GetNextToken(); // Получили значение
+                tokenizer.GetNextToken(); // =
 
-                    if (token.endsWith(";")) { // Если обьявление корреткно
+                token = tokenizer.GetNextToken(); // Получили значение
 
-                        token = token.substring(0, token.length() - 1); // Удалили последний символ
-
-                        if (token.matches("(\\d+).(\\d+)")) { // Если значение - число
-                            double value = Double.parseDouble(token);
-                            doubleID.put(tokenName, value); // И положили его
-                            Body();
-                        } else { // Если не равняеться числу
-                            System.out.println("The variable must = digit.digit!");
-                            err(token);
-                        }
-
-                    } else { // Если не закрыто ;
-                        System.out.println("The definition must be closed with ';' !");
-                        err(token);
-                    }
-
-                } else { // Если нету равно
-                    System.out.println("The variable must be initialized with =");
-                    err(tokenName);
-                }
+                double value = getDouble (token);
+                doubleID.put(tokenName, value); // И положили его
+                Body();
 
             } else { // Если имя не корректно
                 err(tokenName);
@@ -752,6 +660,7 @@ public class Parser {
                 name.equalsIgnoreCase("main") ||
                 name.equalsIgnoreCase("else") ||
                 name.equalsIgnoreCase("return") ||
+                name.equalsIgnoreCase("bool") ||
                 name.equalsIgnoreCase("int") ||
                 name.equalsIgnoreCase("double")
                 ) {
@@ -760,7 +669,7 @@ public class Parser {
         } else if (name.matches("(\\W)*")) { // Проверка на нечитаемые символы - любой символ, кроме буквенного или цифрового символа или знака подчёркивания
             System.out.println("Variable cannot have special symbols in the name! Only English letters, numbers and _");
             return false;
-        } else if ( Character.isDigit( name.charAt(0) ) ) { // Если первый символ - цифра то ошиба
+        } else if ( Character.isDigit( name.charAt(0) ) ) { // Если первый символ - цифра то ошибка
             System.out.println("Variable name must starts with letter!");
             return false;
         } else {

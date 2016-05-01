@@ -13,6 +13,7 @@ import java.io.IOException;
  *
  * Lexer - испольняет функции лексического анализатора и, частично, синтаксического. Функции:
  * - Проверяет корректность ввода зарезервированных слов
+ * - Проверяет корректность лексем
  * - Проверяет порядок (Например, что полсе for стоит ( и тд )
  * - Выводит ошибки, если есть проблемы при выводе цепочек.
  */
@@ -155,7 +156,6 @@ public class Lexer {
 
     }
 
-
     /**
      * Function checking for circle lexical
      */
@@ -195,12 +195,11 @@ public class Lexer {
             }
 
         } else {
-            System.out.println("For must have () block!");
+            System.out.println("For must have ( ) block!");
             err(token);
         }
 
     }
-
 
     /**
      * Function checking while lexical
@@ -247,14 +246,26 @@ public class Lexer {
      */
     private void OUT () {
 
+        String token = "out";
         if (tokenizer.GetNextToken().equals("(")) {
-            String token = tokenizer.GetNextToken();
-            if (tokenizer.GetNextToken().equals(");")) {
-                Body();
-            } else {
-                System.out.println("Your must closed the out function by ');' !");
-                err(token);
+            token = tokenizer.GetNextToken();
+
+            while (!token.equals(");")) {
+
+                if (token.equals("ERROR")){
+                    System.out.println("Your must closed the out function by ');' !");
+                    err(token);
+                }
+
+                token = tokenizer.GetNextToken(); // Получили слуедующий токен
+
             }
+
+            Body();
+
+        } else {
+            System.out.println("The out function have syntaxsis like \"out ( something );\"  !");
+            err(token);
         }
 
     }
