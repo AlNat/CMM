@@ -36,7 +36,7 @@ public class Main {
         }
 
         // DEBUG
-        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 4.cmm";
+        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 5.cmm";
 
         Lexer lex = new Lexer();
         Parser par = new Parser();
@@ -46,11 +46,12 @@ public class Main {
 
             if (lex.isCorrect) { // Если у лексера нет ошибок
 
-                System.out.println("File is lexical correct");
+                System.out.println("File is lexical correct!");
 
                 par.Parse(filename); // То пробуем его парсером
 
                 if (par.isCorrect) { // Если парсер все сделал
+                    par.PrintAllVariables();
                     System.out.println("File is correct and complete!");
                 }
 

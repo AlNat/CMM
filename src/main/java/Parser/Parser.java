@@ -13,11 +13,11 @@ import java.util.Map;
  */
 
 /**
- * Syntax and Semantic analyzer. Also interpretator.
+ * Syntax and Semantic analyzer. Also interpreter.
  *
  * Парсер - исполняет функции синтаксического и семантического анализатора, а так-же выполняет наш файл.
  *
- * //TODO Пока вложенные if и циклы не реализованны
+ * //TODO Реализовать влоенные циклы и if - это через deep делаеться.
  */
 
 public class Parser {
@@ -25,14 +25,14 @@ public class Parser {
     private Tokenizer tokenizer;
 
     public boolean isCorrect; // Флаг орректности программы с точки зрения парсера
-    private int deep; // Глубина погруения в {}
+    private int deep; // Глубина погружения в {}
     private int start; // Место начало петли
 
     private Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
     private Map <String, Double> doubleID; // Дробные переменные
 
     /**
-     * Constuctor, initialised the Map and other variables
+     * Constructor, initialised the Map and other variables
      */
     public Parser () {
         /*
@@ -40,11 +40,11 @@ public class Parser {
             Так что будем тут и испольнять файл и проверять и тд
         */
         tokenizer = new Tokenizer();
-        tokenizer.SetTokenPosition(0);
-        integerID = new HashMap<>();
+        tokenizer.SetTokenPosition(0); // Установили токенайзер в начало файла
+        integerID = new HashMap<>(); // Создали мапы переменных
         doubleID = new HashMap<>();
-        deep = 0;
-        isCorrect = false;
+        deep = 0; // Уровень глубины
+        isCorrect = false; // Флаг корретности
 
     }
 
@@ -57,8 +57,8 @@ public class Parser {
 
         tokenizer.Parse(filename); // Двупроходный интерпритатор получаеться у нас
 
-        tokenizer.SetTokenPosition (6); // Установили поизицю токенов на 7 (с 0 считаем - 6). Тк у нас программа корректная
-        // а первые 6 токенов это int main ( void ) {
+        tokenizer.SetTokenPosition (6); // Установили поизицю токенов на 7 (с 0 считаем - 6).
+        // Тк у нас программа корректная, а первые 6 токенов это int main ( void ) {
 
         Body();
 
@@ -112,7 +112,7 @@ public class Parser {
             tokenizer.SetTokenPosition(start); // Пошли в петлю
             Body();
         } else {
-            ARYTH(token); // Если все выше не подошло, то мы получили работу с переменной или ошибку
+            ARITH(token); // Если все выше не подошло, то мы получили работу с переменной или ошибку
         }
 
     }
@@ -125,7 +125,7 @@ public class Parser {
         tokenizer.GetNextToken(); // (
         String printName = tokenizer.GetNextToken();
 
-        while (!printName.equals(");")) {
+        while (!printName.equals(");")) { // Пока скобки не закрылись
 
             if (integerID.containsKey(printName)) { // Если это интовая переменная
                 System.out.println("The int variable " + printName + " = " + integerID.get(printName) ); // То выводим значение
@@ -149,7 +149,7 @@ public class Parser {
 
         String token = tokenizer.GetNextToken();
 
-        while (!token.equals("*/")) {
+        while (!token.equals("*/")) { // Просто игнориуем комментарии
             token = tokenizer.GetNextToken();
 
             if (token.equals("ERROR")) {
@@ -164,16 +164,16 @@ public class Parser {
     }
 
     /**
-     * Function Looks at variable stack and use specialfunction to it (intaryth and doubleayth) or print error
+     * Function Looks at variable stack and use special function to it (intarith and doublearith) or print error
      * @param tokenName - variable to work
      */
-    private void ARYTH (String tokenName) {
+    private void ARITH(String tokenName) {
 
         // Если переменная существет, то работаем с ней, в зависимости от ее типа
         if (integerID.containsKey(tokenName) ) {
-            INTARYTH(tokenName);
+            INTARITH(tokenName);
         } else if (doubleID.containsKey(tokenName)) {
-            DOUBLEARYTH(tokenName);
+            DOUBLEARITH(tokenName);
         } else { // Иначе ошибка
             System.out.println("Cannot find the variable!");
             err(tokenName);
@@ -185,7 +185,7 @@ public class Parser {
      * Implement int arythmetic
      * @param tokenName - name of variable to work
      */
-    private void INTARYTH(String tokenName) { // tokenName гарантиравано существует как интовая переменная
+    private void INTARITH(String tokenName) { // tokenName гарантиравано существует как интовая переменная
 
         String token = tokenizer.GetNextToken();
         String tokenName2 = tokenizer.GetNextToken();
@@ -206,7 +206,6 @@ public class Parser {
                 value = integerID.get(t);
                 integerID.put(tokenName, value);
                 Body();
-                return;
             } else if (doubleID.containsKey(t)) { // Если int = double;
                 System.out.println("Your cannot write int = double!");
                 err(token);
@@ -214,7 +213,6 @@ public class Parser {
                 value = getDigit(tokenName2);
                 integerID.put(tokenName, value);
                 Body();
-                return;
             }
         } else { // Если name = something ARUTH something;
 
@@ -293,7 +291,7 @@ public class Parser {
      * Implement double arythmetic
      * @param tokenName - name of variable to work
      */
-    private void DOUBLEARYTH(String tokenName) {
+    private void DOUBLEARITH(String tokenName) {
 
         String token = tokenizer.GetNextToken();
         String variable = tokenizer.GetNextToken();
@@ -314,16 +312,13 @@ public class Parser {
                 value = doubleID.get(t);
                 doubleID.put(tokenName, value);
                 Body();
-                return;
             } else if (integerID.containsKey(t)) { // Если int = double;
                 System.out.println("Your cannot write double = int!");
                 err(token);
-                return;
             } else { // Если double = value;
                 value = getDouble(variable);
                 doubleID.put(tokenName, value);
                 Body();
-                return;
             }
         } else { // Если name = something ARUTH something;
 
@@ -400,6 +395,28 @@ public class Parser {
     }
 
     /**
+     * Function skipping if body if УСЛОВИЕ is incorrect
+     */
+    private void SKIPBODY () {
+
+        String token = tokenizer.GetNextToken();
+        int l = deep; // Глубина до которой пропускаем
+
+        while (!token.equals("}") && deep == l) {
+            token = tokenizer.GetNextToken();
+
+            if (token.equals("ERROR")) {
+                err(token);
+            }
+
+        }
+
+        start = tokenizer.GetCurrentTokenNumber(); // Убрали петлю
+
+        Body();
+    }
+
+    /**
      * Function checking the if УСЛОВИЕ
      */
     private void IF () {
@@ -443,28 +460,6 @@ public class Parser {
     }
 
     /**
-     * Function skipping if body if УСЛОВИЕ is incorrect
-     */
-    private void SKIPBODY () {
-
-        String token = tokenizer.GetNextToken();
-        int l = deep; // Глубина до которой пропускаем
-
-        while (!token.equals("}") && deep == l) {
-            token = tokenizer.GetNextToken();
-
-            if (token.equals("ERROR")) {
-                err(token);
-            }
-
-        }
-
-        start = tokenizer.GetCurrentTokenNumber(); // Убрали петлю
-
-        Body();
-    }
-
-    /**
      * Function implements while statement
      */
     private void WHILE () {
@@ -501,13 +496,84 @@ public class Parser {
             tokenizer.GetNextToken(); // )
             tokenizer.GetNextToken(); // {
             Body();
-
         }
 
     }
 
     /**
-     * Function checking statment
+     * Function implementing for condition
+     */
+    private void FOR () {
+
+        // for ( a; a < 3; 1 ) {
+
+        start = tokenizer.GetCurrentTokenNumber() - 1; // Номер токена, к которому будем возвращаться
+
+        tokenizer.GetNextToken(); // (
+
+        String token = tokenizer.GetNextToken(); // a;
+
+        boolean doubleflag = false; // Флаг на то что переменная дабл
+        double value; // Значение переменной на момент начал цикла
+
+        token = token.substring(0, token.length() - 1); // Образали последнюю ;
+
+        if (integerID.containsKey(token)) {
+            value = getDigit(token);
+        } else if (doubleID.containsKey(token)) {
+            value = getDouble(token);
+            doubleflag = true;
+        } else {
+            System.out.println("The for circle have syntax like \" for ( var; var operand value; value ) { \" ");
+            err(token);
+            return;
+        }
+
+        String name1 = tokenizer.GetNextToken(); // a
+
+        if (!name1.equals(token)) {
+            System.out.println("The for circle have syntax like \" for ( var; var operand value; value ) { \" ");
+            err(token);
+        }
+
+        token = tokenizer.GetNextToken(); // <
+        String name2 = tokenizer.GetNextToken();
+
+        double value2; // 3
+        if (doubleflag) { // Если работаем с даблом
+            value2 = getDouble(name2);
+        } else {
+            value2 = getDigit(name2);
+        }
+
+        String n = tokenizer.GetNextToken();
+        double vv; // 1
+        if (doubleflag) {// Если работаем с даблом
+            vv = getDouble(n);
+        } else {
+            vv = getDigit(n);
+        }
+
+        if ( !CONDITION(value, value2, token) ) { // Если выражение не верно, то пропускаем все тело цикла
+            SKIPBODY();
+        } else { // Иначе выполняем
+            tokenizer.GetNextToken(); // )
+            tokenizer.GetNextToken(); // {
+
+            int v = (int)value + (int)vv;
+            if (doubleflag){ // Если работаем с даблом то полоили его
+                doubleID.put(name1, value + vv);
+            } else { // Иначе кинули инт
+                integerID.put(name1, v);
+            }
+
+            Body();
+        }
+
+    }
+
+    /**
+     * Function checking statement
      * @param value left value
      * @param value2 right value
      * @param operator operator between
@@ -554,31 +620,6 @@ public class Parser {
 
         return flag;
     }
-
-    /**
-     * Function implementing for condition
-     */
-    private void FOR () {
-        //TODO Доделать. Пока просто опускаем все что внутри.
-        // for ( a; a < 3; 1 ) {
-        // Идея - сделать просто преобразование тупо к while этого цикла.
-        String token = tokenizer.GetNextToken(); // (
-        int l = deep; // Глубина до которой пропускаем
-
-        token = tokenizer.GetNextToken();
-
-        while (!token.equals("}") && deep == l) {
-            token = tokenizer.GetNextToken();
-
-            if (token.equals("ERROR")) {
-                err(token);
-            }
-
-        }
-
-        Body();
-    }
-
 
     /**
      * This function adding the variable to variables stack if statement is correct
@@ -683,7 +724,7 @@ public class Parser {
      * @param in - token, where error happens
      */
     private void err (String in) {
-        System.out.println("Error! Token => " + in + " Prev => " + tokenizer.GetPrevToken() + " Row = " + tokenizer.GetTokenRow());
+        System.out.println("Error! Token => " + in + " Row = " + tokenizer.GetTokenRow());
         System.exit(-1);
     }
 
