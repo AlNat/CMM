@@ -3,27 +3,28 @@ import Parser.Parser;
 
 import java.io.IOException;
 import java.util.Scanner;
+// TODO Сделать вложенные if и цикилы
+// TODO Сделать конструкцию if() {} else {}
 
+/**
+ * C--
+ *
+ * Язык интерпретируемый.
+ *
+ * Расширение файла .cmm
+ *
+ * Граматика в Grammar
+ *
+ * Тесты в файлах "test n.cmm"
+ *
+ * Лексический и частично синтаксический анализатор - в Lexer
+ *
+ * Все остальное - в Parses
+ *
+ */
 public class Main {
 
     public static void main(String[] args) {
-
-        /**
-         * C--
-         *
-         * Язык интерпретируемый.
-         *
-         * Расширение файла .cmm
-         *
-         * Граматика в Grammar
-         *
-         * Тесты в файлах "test n.cmm"
-         *
-         * Лексический и частично синтаксический анализатор - в Lexer
-         *
-         * Все остальное - в Parses
-         *
-         */
 
         Scanner scanner = new Scanner(System.in);
         String filename; // Имя файла для разбора
@@ -35,8 +36,8 @@ public class Main {
             filename = args[0]; // Иначае взяли имя файла
         }
 
-        // DEBUG
-        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\Parser\\test 5.cmm";
+        /// DEBUG
+        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\prog.cmm";
 
         Lexer lex = new Lexer();
         Parser par = new Parser();
@@ -46,13 +47,13 @@ public class Main {
 
             if (lex.isCorrect) { // Если у лексера нет ошибок
 
-                System.out.println("File is lexical correct!");
+                System.out.println("File is lexical correct!\n");
 
                 par.Parse(filename); // То пробуем его парсером
 
                 if (par.isCorrect) { // Если парсер все сделал
                     par.PrintAllVariables();
-                    System.out.println("File is correct and complete!");
+                    System.out.println("\nFile is correct and complete!");
                 }
 
             }

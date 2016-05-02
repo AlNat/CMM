@@ -5,6 +5,7 @@ import Lexer.Tokenizer;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by AlNat on 31.03.2016
@@ -17,7 +18,6 @@ import java.util.Map;
  *
  * Парсер - исполняет функции синтаксического и семантического анализатора, а так-же выполняет наш файл.
  *
- * //TODO Реализовать влоенные циклы и if - это через deep делаеться.
  */
 
 public class Parser {
@@ -26,6 +26,7 @@ public class Parser {
 
     public boolean isCorrect; // Флаг орректности программы с точки зрения парсера
     private int deep; // Глубина погружения в {}
+    private Stack<Integer> loop; // Стек для петель во влоенных циклах
     private int start; // Место начало петли
 
     private Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
@@ -131,6 +132,8 @@ public class Parser {
                 System.out.println("The int variable " + printName + " = " + integerID.get(printName) ); // То выводим значение
             } else if (doubleID.containsKey(printName)) { // Если это дабл
                 System.out.println("The double variable " + printName + " = " + doubleID.get(printName) ); // То выводим ее значение
+            } else if (printName.equals("endl")) {
+                System.out.print ("\n");
             } else { // Если это что-то другое
                 System.out.print(printName + " "); // То тоже выводим
             }
@@ -700,6 +703,7 @@ public class Parser {
                 name.equalsIgnoreCase("while") ||
                 name.equalsIgnoreCase("main") ||
                 name.equalsIgnoreCase("else") ||
+                name.equalsIgnoreCase("endl") ||
                 name.equalsIgnoreCase("return") ||
                 name.equalsIgnoreCase("bool") ||
                 name.equalsIgnoreCase("int") ||

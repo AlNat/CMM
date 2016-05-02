@@ -15,7 +15,6 @@ import java.util.List;
  * Licensed by Apache License, Version 2.0
  */
 
-
 /**
  * Токенйзер выполняет самую простую часть работы - он принимает путь файлу, читает его построчно и аписывает все в
  * встречеемые слова, разделенные проблема в массив токенов, убирая табуляции, переводы строк и тд.
@@ -82,7 +81,7 @@ public class Tokenizer {
     }
 
     /**
-     *  Get token by id
+     * Get token by id
      * @param index - token position
      * @return String token with that index
      */
@@ -110,7 +109,6 @@ public class Tokenizer {
         currentToken++;
     }
 
-
     /**
      * Parsing the file and add all tokens inside in array
      * @param filename - parsing file path
@@ -129,16 +127,12 @@ public class Tokenizer {
                 if (t.equals("")) { // Чтобы пстые строчки не добавлялись
                     continue;
                 }
-
                 addToken( t, file.indexOf(st) ); // И добавили его
-
             }
-
 
         }
 
         currentToken = 0;
     }
-
 
 }
