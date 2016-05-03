@@ -3,24 +3,20 @@ import Parser.Parser;
 
 import java.io.IOException;
 import java.util.Scanner;
-// TODO Сделать вложенные if и цикилы
-// TODO Сделать конструкцию if() {} else {}
+
+// TODO Сделать вложенные if и циклы - через стек и тд
+// TODO Сделать конструкцию if ( ) { } else { } - через пропуск до else и тд
 
 /**
- * C--
+ *  C--
+ *  Язык интерпретируемый.
+ *  Расширение файла .cmm
  *
- * Язык интерпретируемый.
+ *  Граматика в Grammar
+ *  Тесты в файлах "test n.cmm"
  *
- * Расширение файла .cmm
- *
- * Граматика в Grammar
- *
- * Тесты в файлах "test n.cmm"
- *
- * Лексический и частично синтаксический анализатор - в Lexer
- *
- * Все остальное - в Parses
- *
+ *  Лексический и частично синтаксический анализатор - в Lexer
+ *  Все остальное - в Parses
  */
 public class Main {
 
@@ -36,8 +32,7 @@ public class Main {
             filename = args[0]; // Иначае взяли имя файла
         }
 
-        /// DEBUG
-        filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\prog.cmm";
+        //filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\prog.cmm";  // DEBUG
 
         Lexer lex = new Lexer();
         Parser par = new Parser();
@@ -57,14 +52,11 @@ public class Main {
                 }
 
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
     }
-
-
 
 }

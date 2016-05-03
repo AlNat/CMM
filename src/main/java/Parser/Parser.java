@@ -11,15 +11,14 @@ import java.util.Stack;
  * Created by AlNat on 31.03.2016
  * @author Alex Natarov
  * Licensed by Apache License, Version 2.0
+ * Copyright 2016 Alex Natarov
  */
 
 /**
  * Syntax and Semantic analyzer. Also interpreter.
  *
  * Парсер - исполняет функции синтаксического и семантического анализатора, а так-же выполняет наш файл.
- *
  */
-
 public class Parser {
 
     private Tokenizer tokenizer;
@@ -42,9 +41,12 @@ public class Parser {
         */
         tokenizer = new Tokenizer();
         tokenizer.SetTokenPosition(0); // Установили токенайзер в начало файла
+
         integerID = new HashMap<>(); // Создали мапы переменных
         doubleID = new HashMap<>();
+
         deep = 0; // Уровень глубины
+        loop = new Stack<>();
         isCorrect = false; // Флаг корретности
 
     }
@@ -110,6 +112,7 @@ public class Parser {
             isCorrect = true;
         } else if (token.equals("}")) { // Если закрыли цикл или if
             deep--;
+            //start = loop.pop();
             tokenizer.SetTokenPosition(start); // Пошли в петлю
             Body();
         } else {
@@ -468,6 +471,7 @@ public class Parser {
     private void WHILE () {
 
         start = tokenizer.GetCurrentTokenNumber() - 1; // Номер токена, к которому будем возвращаться
+        //loop.push(start);
 
         tokenizer.GetNextToken(); // (
         String variableName = tokenizer.GetNextToken();
@@ -511,6 +515,7 @@ public class Parser {
         // for ( a; a < 3; 1 ) {
 
         start = tokenizer.GetCurrentTokenNumber() - 1; // Номер токена, к которому будем возвращаться
+        //loop.push(start);
 
         tokenizer.GetNextToken(); // (
 

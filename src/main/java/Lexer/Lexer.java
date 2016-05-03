@@ -6,16 +6,17 @@ import java.io.IOException;
  * Created by AlNat on 19.04.2016.
  * @author Alex Natarov
  * Licensed by Apache License, Version 2.0
+ * Copyright 2016 Alex Natarov
  */
 
 /**
  *  Lexical analyzer
  *
- * Lexer - испольняет функции лексического анализатора и, частично, синтаксического. Функции:
- * - Проверяет корректность ввода зарезервированных слов
- * - Проверяет корректность лексем
- * - Проверяет порядок (Например, что полсе for стоит ( и тд )
- * - Выводит ошибки, если есть проблемы при выводе цепочек.
+ *  Lexer - испольняет функции лексического анализатора и, частично, синтаксического. Функции:
+ *  - Проверяет корректность ввода зарезервированных слов
+ *  - Проверяет корректность лексем
+ *  - Проверяет порядок (Например, что полсе for стоит ( и тд )
+ *  - Выводит ошибки, если есть проблемы при выводе цепочек.
  */
 
 public class Lexer {
@@ -24,7 +25,7 @@ public class Lexer {
     public boolean isCorrect; // Флаг, обзначающий корректность программы с точки зрения лексера
 
     /**
-     * Constructor, where variables isntalizing
+     * Constructor, where variables instalizing
      */
     public Lexer () {
         tokenizer = new Tokenizer();
