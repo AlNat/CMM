@@ -127,7 +127,7 @@ public class Lexer {
 
         if (token.equals("(")) {
 
-            token = tokenizer.GetNextToken();
+            tokenizer.GetNextToken();
 
             token = tokenizer.GetNextToken();
 
@@ -138,7 +138,7 @@ public class Lexer {
                     || token.equals(">")
                     || token.equals("<")
                     ) {
-                String token2 = tokenizer.GetNextToken();
+                tokenizer.GetNextToken();
                 if (tokenizer.GetNextToken().equals(")") && tokenizer.GetNextToken().equals("{")) {
                     Body();
                 } else {

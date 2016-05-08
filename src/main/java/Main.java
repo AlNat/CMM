@@ -29,7 +29,7 @@ public class Main {
             System.out.println("Please, input filename"); // То вводим вручную
             filename = scanner.nextLine();
         } else {
-            filename = args[0]; // Иначае взяли имя файла
+            filename = args[0]; // Иначе взяли имя файла
         }
 
         //filename = "C:\\Users\\AlNat\\Source\\Studi\\CM\\src\\tests\\prog.cmm";  // DEBUG
@@ -41,6 +41,8 @@ public class Main {
             lex.Parse(filename);
 
             if (lex.isCorrect) { // Если у лексера нет ошибок
+
+                System.gc(); // Запустили сборщик мусора - просто так
 
                 System.out.println("File is lexical correct!\n");
 

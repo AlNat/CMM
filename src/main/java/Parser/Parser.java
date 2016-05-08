@@ -27,6 +27,7 @@ public class Parser {
     private int deep; // Глубина погружения в {}
     private Stack<Integer> loop; // Стек для петель во влоенных циклах
     private int start; // Место начало петли
+    private boolean isLoop; // Флаг петли
 
     private Map <String, Integer> integerID;// Целочисленные переменные - имя и значение
     private Map <String, Double> doubleID; // Дробные переменные
@@ -113,7 +114,9 @@ public class Parser {
         } else if (token.equals("}")) { // Если закрыли цикл или if
             deep--;
             //start = loop.pop();
-            tokenizer.SetTokenPosition(start); // Пошли в петлю
+            if (isLoop) { // Если есть петля
+                tokenizer.SetTokenPosition(start); // Пошли в петлю
+            }
             Body();
         } else {
             ARITH(token); // Если все выше не подошло, то мы получили работу с переменной или ошибку
@@ -418,7 +421,7 @@ public class Parser {
         }
 
         start = tokenizer.GetCurrentTokenNumber(); // Убрали петлю
-
+        isLoop = false;
         Body();
     }
 
@@ -460,6 +463,7 @@ public class Parser {
         } else { // Иначе выполняем
             tokenizer.GetNextToken(); // )
             tokenizer.GetNextToken(); // {
+            isLoop = false; // Поставили флаг, что петли нет - тк у нас if
             Body();
         }
 
@@ -502,6 +506,7 @@ public class Parser {
         } else { // Иначе выполняем
             tokenizer.GetNextToken(); // )
             tokenizer.GetNextToken(); // {
+            isLoop = true;
             Body();
         }
 
@@ -575,6 +580,7 @@ public class Parser {
                 integerID.put(name1, v);
             }
 
+            isLoop = true;
             Body();
         }
 
