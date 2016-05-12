@@ -8,6 +8,11 @@ import java.util.Scanner;
 // TODO Сделать конструкцию if ( ) { } else { } - через пропуск до else и тд
 
 /**
+ * Created by @author AlNat on 20.04.2016.
+ * Licensed by Apache License, Version 2.0
+ */
+
+/**
  *  C--
  *  Язык интерпретируемый.
  *  Расширение файла .cmm
@@ -49,7 +54,7 @@ public class Main {
                 par.Parse(filename); // То пробуем его парсером
 
                 if (par.isCorrect) { // Если парсер все сделал
-                    par.PrintAllVariables();
+                    //par.PrintAllVariables();
                     System.out.println("\nFile is correct and complete!");
                 }
 
